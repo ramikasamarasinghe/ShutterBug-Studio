@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShutterBug Studio | Ramika Samarasinghe</title>
+    <style>
+        /* --- CSS Theme Variables & Base Setup --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;800&display=swap');
+
+        :root {
+            /* Dark Theme Variables */
+            --bg-color: #0a0a0a;
+            --text-color: #ffffff;
+            --text-muted: #a0a0a0;
+            --nav-bg: rgba(10, 10, 10, 0.7);
+            --linear-overlay: rgba(10, 10, 10, 0.3); /* Lowered opacity to keep background visible */
+            
+            /* iOS Liquid Glass Specifics - Ultra Deep Blur */
+            --glass-bg: rgba(255, 255, 255, 0.09);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-row-hover: rgba(255, 255, 255, 0.08);
+            --glass-row-divider: rgba(255, 255, 255, 0.08);
+            --glass-shadow: rgba(0, 0, 0, 0.6);
+            --menu-icon-color: #ffffff;
+            --switch-bg-off: rgba(255, 255, 255, 0.16);
+        }
+
+        [data-theme="light"] {
+            /* Light Theme Variables */
+            --bg-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --text-muted: #86868b;
+            --nav-bg: rgba(255, 255, 255, 0.7);
+            --linear-overlay: rgba(245, 245, 247, 0.25); /* Lowered opacity to keep background visible */
+            
+            /* iOS Liquid Glass Light Mode */
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --glass-row-hover: rgba(0, 0, 0, 0.04);
+            --glass-row-divider: rgba(0, 0, 0, 0.05);
+            --glass-shadow: rgba(0, 0, 0, 0.1);
+            --menu-icon-color: #1d1d1f;
+            --switch-bg-off: rgba(120, 120, 128, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.5s cubic-bezier(0.25, 1, 0.5, 1), color 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* BACKGROUND IMAGE CONFIGURATION */
+        .bg-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('Image14.webp'); 
+            background-size: cover; 
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .bg-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(var(--linear-overlay), var(--linear-overlay));
+            transition: background 0.5s ease;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: var(--text-muted);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes textShine {
+            0% { background-position: 160% 0; }
+            100% { background-position: -60% 0; }
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--nav-bg);
+            backdrop-filter: blur(45px);
+            -webkit-backdrop-filter: blur(45px);
+            z-index: 1000;
+            animation: fadeIn 1s ease-out; 
+            border-bottom: 1px solid var(--glass-row-divider);
+            transition: background-color 0.5s ease, border-bottom 0.5s ease;
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;         
+            align-items: center;    
+            gap: 14px; 
+        }
+
+        .nav-right {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        /* --- iOS Profile Trigger Picture Button --- */
+        .profile-trigger {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 1010;
+        }
+
+        .profile-trigger:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-trigger:active {
+            transform: scale(0.95);
+        }
+
+        .profile-trigger img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-avatar-fallback {
+            display: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* --- iOS Modern Menu Trigger Button --- */
+        .menu-trigger {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 6px;
+            z-index: 1010;
+            padding: 5px;
+        }
+
+        .menu-trigger span {
+            display: block;
+            height: 2px;
+            background-color: var(--menu-icon-color);
+            border-radius: 2px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .menu-trigger .line-1 { width: 28px; }
+        .menu-trigger .line-2 { width: 20px; }
+        .menu-trigger .line-3 { width: 24px; }
+
+        .menu-trigger.active .line-1 {
+            transform: translateY(8px) rotate(45deg);
+            width: 26px;
+        }
+        .menu-trigger.active .line-2 {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+        .menu-trigger.active .line-3 {
+            transform: translateY(-8px) rotate(-45deg);
+            width: 26px;
+        }
+
+        /* --- iOS Liquid Glass Dropdown Menu List --- */
+        .ios-menu-panel {
+            position: absolute;
+            top: 55px;
+            right: 0;
+            width: 300px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(50px) saturate(210%);
+            -webkit-backdrop-filter: blur(50px) saturate(210%);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 15px 35px var(--glass-shadow);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            opacity: 0;
+            transform: translateY(-15px) scale(0.95);
+            pointer-events: none;
+            transform-origin: top right;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            z-index: 1005;
+        }
+
+        .ios-menu-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* --- iOS Liquid Dropdown Profile/About Panel --- */
+        .ios-profile-panel {
+            position: absolute;
+            top: 55px;
+            right: 48px; 
+            width: 320px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(50px) saturate(210%);
+            -webkit-backdrop-filter: blur(50px) saturate(210%);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px; 
+            box-shadow: 0 15px 40px var(--glass-shadow);
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transform: translateY(-15px) scale(0.95);
+            pointer-events: none;
+            transform-origin: top right;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+            z-index: 1005;
+        }
+
+        .ios-profile-panel.open {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        /* Profile Dropdown Internal Structures */
+        .profile-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--glass-row-divider);
+            padding-bottom: 12px;
+        }
+
+        .profile-panel-avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .profile-panel-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-panel-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-panel-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            color: var(--text-color);
+            line-height: 1.2;
+        }
+
+        .profile-panel-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .profile-panel-body {
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.9;
+            line-height: 1.5;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .profile-panel-body p:not(:last-child) {
+            margin-bottom: 10px;
+        }
+
+        /* Menu Item Layout Configs */
+        .menu-item {
+            position: relative;
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 14px 16px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-color);
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .menu-item:hover {
+            background-color: var(--glass-row-hover);
+        }
+
+        .menu-item:active {
+            transform: scale(0.98);
+        }
+
+        .menu-item-inner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-icon-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+        }
+
+        /* Contextual "Coming Soon" Liquid Glass Bubble */
+        .coming-soon-popover {
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%) scale(0.8);
+            background: rgba(255, 45, 85, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 5px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 12px;
+            opacity: 0;
+            pointer-events: none;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+            box-shadow: 0 4px 15px rgba(255, 45, 85, 0.4);
+            white-space: nowrap;
+            letter-spacing: -0.1px;
+        }
+
+        .coming-soon-popover.active {
+            opacity: 1;
+            transform: translateY(-50%) scale(1);
+        }
+
+        /* iOS Segmented Theme Controls */
+        .theme-pill-container {
+            display: flex;
+            width: 100%;
+            background: rgba(120, 120, 128, 0.14);
+            border-radius: 12px;
+            padding: 2px;
+            margin-top: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="light"] .theme-pill-container {
+            background: rgba(120, 120, 128, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+        }
+
+        .theme-pill {
+            flex: 1;
+            background: transparent;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.84rem;
+            font-weight: 500;
+            padding: 6px 0;
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            text-align: center;
+        }
+
+        .theme-pill.active {
+            background: #ffffff;
+            color: #1d1d1f !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+            font-weight: 600;
+        }
+
+        /* iOS Toggle Switch Components */
+        .ios-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 26px;
+            cursor: pointer;
+        }
+
+        .ios-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .ios-slider {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--switch-bg-off);
+            transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: 26px;
+        }
+
+        .ios-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 2px;
+            bottom: 2px;
+            background-color: #ffffff;
+            transition: 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+        }
+
+        .ios-toggle input:checked + .ios-slider {
+            background-color: #34c759; 
+        }
+
+        .ios-toggle input:checked + .ios-slider:before {
+            transform: translateX(18px);
+        }
+
+        /* iOS Nested Drawer Stacks */
+        .submenu-wrapper {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 0 8px;
+            background: rgba(120, 120, 128, 0.05);
+            border-radius: 14px;
+        }
+
+        .submenu-wrapper.expanded {
+            max-height: 180px;
+            margin-bottom: 6px;
+            padding: 6px 8px;
+        }
+
+        .sub-menu-row-item {
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 10px;
+            color: var(--text-color);
+        }
+
+        .sub-menu-row-item:not(:last-child) {
+            border-bottom: 1px solid var(--glass-row-divider);
+        }
+
+        .sub-menu-link-item {
+            padding: 10px 12px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 10px;
+            color: var(--text-color);
+            transition: background-color 0.2s ease;
+        }
+
+        .sub-menu-link-item:hover {
+            background-color: var(--glass-row-hover);
+        }
+
+        .chevron-icon {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .menu-item.active-parent .chevron-icon {
+            transform: rotate(90deg);
+        }
+
+        /* --- Fixed Responsive Social Dock --- */
+        .fixed-socials {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 14px;
+            z-index: 999;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        .social-btn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(210%);
+            -webkit-backdrop-filter: blur(30px) saturate(210%);
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 24px var(--glass-shadow);
+            color: var(--text-color);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s, color 0.2s;
+        }
+
+        .social-btn:hover {
+            transform: scale(1.12) translateY(-4px);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+
+        [data-theme="light"] .social-btn:hover {
+            background-color: rgba(0, 0, 0, 0.08);
+        }
+
+        .social-btn:active {
+            transform: scale(0.92);
+        }
+
+        .social-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .social-btn.whatsapp-btn:hover { color: #25D366; }
+        .social-btn.instagram-btn:hover { color: #E1306C; }
+        .social-btn.facebook-btn:hover { color: #1877F2; }
+
+        /* --- Hero Section & Fluid Chromatic Title --- */
+        #hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            
+            /* Fluid Liquid Mask Refraction Config */
+            background: linear-gradient(110deg, var(--text-color) 35%, rgba(255,255,255,0.85) 45%, #ffffff 50%, rgba(255,255,255,0.85) 55%, var(--text-color) 65%);
+            background-size: 260% 100%;
+            background-position: 160% 0;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: background-position 0s linear;
+        }
+
+        @media (min-width: 769px) {
+            .hero-title:hover {
+                animation: textShine 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            }
+        }
+
+        .hero-tagline {
+            font-size: 1.2rem;
+            font-weight: 300;
+            color: var(--text-muted);
+            max-width: 600px;
+        }
+
+        /* --- General Section Layout --- */
+        section {
+            padding: 100px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease-out; 
+            animation-delay: 0.2s; 
+            animation-fill-mode: both; 
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--glass-row-divider);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .subsection-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid var(--glass-row-divider);
+            padding-bottom: 5px;
+            display: block;
+        }
+
+        /* --- Liquid Glass Floating Gallery Dock Block --- */
+        #gallery {
+            animation-delay: 0.4s;
+            background: var(--glass-bg);
+            backdrop-filter: blur(40px) saturate(220%);
+            -webkit-backdrop-filter: blur(40px) saturate(220%);
+            border: 1px solid var(--glass-border);
+            border-radius: 38px;
+            padding: 50px;
+            margin: 80px auto;
+            box-shadow: 0 35px 70px var(--glass-shadow);
+            transition: background-color 0.5s ease, border 0.5s ease;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px; 
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px; /* Smoother corner profile inside the dock */
+            aspect-ratio: 1 / 1;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            pointer-events: none;
+        }
+
+        /* --- iOS Pop-Out Engine CSS Structures --- */
+        .ios-preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(0px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        [data-theme="light"] .ios-preview-overlay {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .ios-preview-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+            backdrop-filter: blur(30px) saturate(190%);
+            -webkit-backdrop-filter: blur(30px) saturate(190%);
+        }
+
+        .ios-preview-card {
+            width: 90%;
+            max-width: 480px;
+            aspect-ratio: 1 / 1;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 38px;
+            overflow: hidden;
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.5);
+            transform: scale(0.7) translateY(30px);
+            opacity: 0;
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+
+        [data-theme="light"] .ios-preview-card {
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .ios-preview-overlay.active .ios-preview-card {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+        }
+
+        .ios-preview-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* --- Contact Section --- */
+        #contact {
+            text-align: center;
+            padding-bottom: 150px;
+            animation-delay: 0.6s;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .contact-item {
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
+
+        .contact-item span {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 1rem;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 30px;
+            border-top: 1px solid var(--glass-row-divider);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            animation: fadeIn 1s ease-out;
+            animation-delay: 0.8s;
+            animation-fill-mode: both;
+        }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            nav {
+                padding: 20px;
+            }
+
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            section {
+                padding: 60px 20px;
+            }
+
+            #gallery {
+                padding: 30px 18px;
+                margin: 40px 16px;
+                border-radius: 28px;
+            }
+
+            .ios-profile-panel {
+                right: 20px;
+                width: calc(100vw - 40px);
+                max-width: 320px;
+            }
+
+            .fixed-socials {
+                bottom: 20px;
+                right: 20px;
+                gap: 10px;
+            }
+
+            .social-btn {
+                width: 42px;
+                height: 42px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 14px;
+            }
+
+            .contact-item {
+                font-size: 1.2rem;
+            }
+
+            .ios-preview-card {
+                width: 86%;
+                border-radius: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Native Background Image Wrap -->
+    <div class="bg-wrapper">
+        <div class="bg-overlay"></div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="logo">
+            ShutterBug Studio
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 100 100">
+                <defs>
+                    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="2.5" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                    <linearGradient id="chromeTealLeft" x1="1" y1="0" x2="0" y2="0">
+                        <stop offset="0%" stop-color="#b2f3ee" />
+                        <stop offset="25%" stop-color="#48a39b" />
+                        <stop offset="65%" stop-color="#0b413c" />
+                        <stop offset="90%" stop-color="#041d1a" />
+                        <stop offset="100%" stop-color="#010a09" />
+                    </linearGradient>
+                    <linearGradient id="chromeTealRight" x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stop-color="#b2f3ee" />
+                        <stop offset="25%" stop-color="#48a39b" />
+                        <stop offset="65%" stop-color="#0b413c" />
+                        <stop offset="90%" stop-color="#041d1a" />
+                        <stop offset="100%" stop-color="#010a09" />
+                    </linearGradient>
+                    <linearGradient id="glowingTrim" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#00ffdf" />
+                        <stop offset="100%" stop-color="#006c5f" />
+                    </linearGradient>
+                </defs>
+                <g filter="url(#neonGlow)">
+                    <path d="M28,34 Q18,48 28,60 M24,53 H12 M28,72 Q18,84 28,90" fill="none" stroke="#005248" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+                    <path d="M72,34 Q82,48 72,60 M72,53 H88 M72,72 Q82,84 72,90" fill="none" stroke="#005248" stroke-width="5" stroke-linecap="round" opacity="0.4"/>
+                    <path d="M28,34 Q16,48 28,58" fill="none" stroke="url(#glowingTrim)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M26,53 H12" fill="none" stroke="url(#glowingTrim)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M28,72 Q16,84 27,90" fill="none" stroke="url(#glowingTrim)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M72,34 Q84,48 72,58" fill="none" stroke="url(#glowingTrim)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M74,53 H88" fill="none" stroke="url(#glowingTrim)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M72,72 Q84,84 73,90" fill="none" stroke="url(#glowingTrim)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M38,28 Q38,18 44,18 H56 Q62,18 62,28" fill="none" stroke="#012420" stroke-width="5" stroke-linecap="round"/>
+                    <path d="M38,28 Q38,18 44,18 H56 Q62,18 62,28" fill="none" stroke="url(#glowingTrim)" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M42,32 H58" fill="none" stroke="url(#glowingTrim)" stroke-width="4" stroke-linecap="round"/>
+                    <rect x="46" y="29" width="8" height="3" fill="#a2fcee"/>
+                    <path d="M47.5,37 C34,37 31,56 31,70 C31,88 40,94 47.5,95 Z" fill="url(#chromeTealLeft)"/>
+                    <path d="M46.5,38 C35,38 32.5,56 32.5,70 C32.5,86 40.5,92 46.5,93 Z" fill="none" stroke="url(#glowingTrim)" stroke-width="1" opacity="0.8"/>
+                    <path d="M52.5,37 C66,37 69,56 69,70 C69,88 60,94 52.5,95 Z" fill="url(#chromeTealRight)"/>
+                    <path d="M53.5,38 C65,38 67.5,56 67.5,70 C67.5,86 59.5,92 53.5,93 Z" fill="none" stroke="url(#glowingTrim)" stroke-width="1" opacity="0.8"/>
+                </g>
+            </svg>
+        </div>
+
+        <div class="nav-right">
+            <!-- iOS Profile Button Configuration Layout -->
+            <button class="profile-trigger" id="profileTrigger" aria-label="View Profile Dropdown Panel">
+                <img src="profile.png" alt="Ramika" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="profile-avatar-fallback">RS</div>
+            </button>
+
+            <!-- Menu Trigger Icon Button -->
+            <button class="menu-trigger" id="menuTrigger" aria-label="Toggle Menu">
+                <span class="line-1"></span>
+                <span class="line-2"></span>
+                <span class="line-3"></span>
+            </button>
+
+            <!-- iOS Liquid Dropdown Profile Card (About Us) -->
+            <div class="ios-profile-panel" id="iosProfilePanel">
+                <div class="profile-panel-header">
+                    <div class="profile-panel-avatar">
+                        <img src="profile.png" alt="Ramika Samarasinghe" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="profile-avatar-fallback" style="display:flex; font-size:1.1rem; font-weight:600;">RS</div>
+                    </div>
+                    <div class="profile-panel-info">
+                        <h3 class="profile-panel-name">Ramika Samarasinghe</h3>
+                        <p class="profile-panel-subtitle">Photographer</p>
+                    </div>
+                </div>
+                <div class="profile-panel-body">
+                    <p>Hello, I'm Ramika Samarasinghe, the eye behind ShutterBug Studio. I am a freelance photographer specializing in modern, minimalist imagery. I believe that true beauty lies in simplicity and raw emotion.</p>
+                    <p>With a passion for clean compositions and dramatic lighting, I strive to capture moments that tell compelling visual stories. My goal is to create images that resonate deeply and stand the test of time.</p>
+                </div>
+            </div>
+
+            <!-- iOS Platter Glass Dropdown Menu -->
+            <div class="ios-menu-panel" id="iosMenu">
+                
+                <!-- Gallery Anchor Button -->
+                <button class="menu-item" data-scroll-target="#gallery">
+                    <div class="menu-item-inner">
+                        <div class="menu-icon-wrap" style="background-color: #5ac8fa;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        </div>
+                        <span>Gallery</span>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.4"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                
+                <!-- Settings Accordion Trigger -->
+                <button class="menu-item" id="settingsAccordionBtn">
+                    <div class="menu-item-inner">
+                        <div class="menu-icon-wrap" style="background-color: #8e8e93;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        </div>
+                        <span>Settings</span>
+                    </div>
+                    <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.4"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+
+                <!-- Nested Settings Group List -->
+                <div class="submenu-wrapper" id="settingsDropdown">
+                    
+                    <!-- Segmented Dual-Option Theme Control Dock -->
+                    <div class="sub-menu-row-item" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                        <div class="menu-item-inner" style="gap: 10px; width: 100%;">
+                            <div class="menu-icon-wrap" style="background-color: #3a3a3c; width:22px; height:22px; border-radius:6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                            </div>
+                            <span style="font-size:0.88rem;">Theme</span>
+                        </div>
+                        <div class="theme-pill-container">
+                            <button id="lightThemeBtn" class="theme-pill">Light</button>
+                            <button id="darkThemeBtn" class="theme-pill active">Dark</button>
+                        </div>
+                    </div>
+
+                    <div class="sub-menu-row-item" style="margin-top: 4px;">
+                        <div class="menu-item-inner" style="gap: 10px;">
+                            <div class="menu-icon-wrap" style="background-color: #34c759; width:22px; height:22px; border-radius:6px;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                            </div>
+                            <span style="font-size:0.88rem;">Notifications</span>
+                        </div>
+                        <label class="ios-toggle">
+                            <input type="checkbox" id="notificationToggle" checked>
+                            <span class="ios-slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Contact Us Accordion Trigger -->
+                <button class="menu-item" id="contactAccordionBtn">
+                    <div class="menu-item-inner">
+                        <div class="menu-icon-wrap" style="background-color: #5856d6;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        </div>
+                        <span>Contact Us</span>
+                    </div>
+                    <svg class="chevron-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.4"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+
+                <!-- Nested Contact Options Panel -->
+                <div class="submenu-wrapper" id="contactDropdown">
+                    <a href="https://wa.me/94762483478" target="_blank" class="sub-menu-link-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                        WhatsApp: +94 76 248 3478
+                    </a>
+                    <a href="mailto:ramikasensilu@gmail.com" class="sub-menu-link-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff9500" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        Email: ramikasensilu@gmail.com
+                    </a>
+                </div>
+
+                <!-- Packages Button Trigger -->
+                <button class="menu-item" id="packagesMenuBtn">
+                    <div class="menu-item-inner">
+                        <div class="menu-icon-wrap" style="background-color: #ff2d55;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                        </div>
+                        <span>Packages</span>
+                    </div>
+                    <div class="coming-soon-popover" id="comingSoonBubble">Coming Soon</div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.4"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero">
+        <h1 class="hero-title">ShutterBug Studio</h1>
+        <p class="hero-tagline">by Ramika Samarasinghe</p>
+    </section>
+
+    <!-- Isolated Liquid Glass Dock Segment Gallery Section -->
+    <section id="gallery">
+        <h2 class="section-title">Gallery</h2> 
+
+        <!-- SUBSECTION: Awarded -->
+        <h3 class="subsection-title">Awarded</h3>
+        <div class="gallery-grid awarded-grid">
+            <div class="gallery-item" data-src="Image1.jpeg"><img src="Image1.jpeg" alt="Minimalist urban structure with deep shadows"></div>
+            <div class="gallery-item" data-src="Image2.jpeg"><img src="Image2.jpeg" alt="Carved wooden statue of goddess Saraswati with Vina"></div>
+            <div class="gallery-item" data-src="Image3.jpeg"><img src="Image3.jpeg" alt="Low-key photo of a porcelain dancing couple sculpture"></div>
+            <div class="gallery-item" data-src="Image4.jpeg"><img src="Image4.jpeg" alt="Gold ring casting a heart-shaped shadow on notebook paper"></div>
+            <div class="gallery-item" data-src="Image5.jpeg"><img src="Image5.jpeg" alt="Abstract macro of reflective metal surface and swirling contours"></div>
+            <div class="gallery-item" data-src="Image6.jpeg"><img src="Image6.jpeg" alt="Terracotta pots on a sun-drenched architectural wall with strong shadows"></div>
+            <div class="gallery-item" data-src="Image7.jpeg"><img src="Image7.jpeg" alt="Black and white portrait of a woman in profile looking right"></div>
+        </div>
+
+        <!-- SUBSECTION: Captures -->
+        <h3 class="subsection-title">Captures</h3>
+        <div class="gallery-grid captures-grid">
+            <div class="gallery-item" data-src="Image11.jpeg"><img src="Image11.jpeg" alt="Another low-key shot of the porcelain dancing couple"></div>
+            <div class="gallery-item" data-src="Image12.jpeg"><img src="Image12.jpeg" alt="Clearer low-key portrait of the porcelain couple sculpture"></div>
+            <div class="gallery-item" data-src="Image13.jpeg"><img src="Image13.jpeg" alt="Ocean waves at sunrise with low clouds and rocky shore"></div>
+        </div>
+    </section>
+
+    <!-- iOS 26 High-Fidelity Corner Masked Preview Panel Overlay -->
+    <div class="ios-preview-overlay" id="imagePreviewOverlay">
+        <div class="ios-preview-card" id="previewCard">
+            <img id="previewImage" src="" alt="Fluid System Preview">
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact">
+        <h2 class="section-title">Get in Touch</h2>
+        <div class="contact-info">
+            <div class="contact-item">
+                <span>Email</span>
+                <a href="mailto:ramikasensilu@gmail.com">ramikasensilu@gmail.com</a>
+            </div>
+            <div class="contact-item">
+                <span>Mobile</span>
+                <a href="tel:+94762483478">+94 76 248 3478</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Social Dock Panel Context -->
+    <div class="fixed-socials">
+        <a href="https://wa.me/94762483478" target="_blank" rel="noopener noreferrer" class="social-btn whatsapp-btn" aria-label="Chat via WhatsApp">
+            <svg viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.894 0c3.18 0 6.171 1.242 8.423 3.498 2.253 2.256 3.491 5.253 3.487 8.437-.005 6.568-5.33 11.892-11.894 11.892-2.001-.001-3.97-.51-5.715-1.482L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.451 5.432 0 9.851-4.417 9.855-9.848.002-2.63-1.023-5.101-2.885-6.963C16.474 1.932 14.004.908 11.381.908c-5.436 0-9.855 4.417-9.859 9.848-.001 1.637.43 3.235 1.248 4.652l-1.015 3.706 3.8-.992zm11.066-6.816c-.3-.15-1.774-.875-2.046-.975-.272-.1-.471-.15-.669.15-.198.3-.765.975-.938 1.175-.173.2-.346.225-.646.075-.3-.15-1.265-.467-2.41-1.487-.893-.797-1.495-1.782-1.67-2.081-.175-.3-.018-.463.13-.612.134-.133.3-.349.45-.523.15-.174.2-.3.3-.5.1-.2.05-.375-.025-.525-.075-.15-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.774-.725 2.022-1.424.248-.699.248-1.299.173-1.424-.075-.124-.272-.199-.572-.349z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/ramika_samarasinghe?igsh=MXRyMW45bnNtZ3I5cQ==" target="_blank" rel="noopener noreferrer" class="social-btn instagram-btn" aria-label="Visit Instagram Profile">
+            <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        </a>
+        <a href="https://www.facebook.com/share/1TB3RL2qM1/" target="_blank" rel="noopener noreferrer" class="social-btn facebook-btn" aria-label="Visit Facebook Page">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 ShutterBug Studio | Ramika Samarasinghe. All rights reserved.</p>
+    </footer>
+
+    <!-- Vanilla Javascript Controllers -->
+    <script>
+        const menuTrigger = document.getElementById('menuTrigger');
+        const iosMenu = document.getElementById('iosMenu');
+        const settingsAccordionBtn = document.getElementById('settingsAccordionBtn');
+        const settingsDropdown = document.getElementById('settingsDropdown');
+        const lightThemeBtn = document.getElementById('lightThemeBtn');
+        const darkThemeBtn = document.getElementById('darkThemeBtn');
+        const notificationToggle = document.getElementById('notificationToggle');
+        const contactAccordionBtn = document.getElementById('contactAccordionBtn');
+        const contactDropdown = document.getElementById('contactDropdown');
+        const htmlElement = document.documentElement;
+        const heroTitle = document.querySelector('.hero-title');
+
+        // Custom Profile Dynamic Panel Components
+        const profileTrigger = document.getElementById('profileTrigger');
+        const iosProfilePanel = document.getElementById('iosProfilePanel');
+
+        // Contextual Popover Notification Target Selector
+        const packagesMenuBtn = document.getElementById('packagesMenuBtn');
+        const comingSoonBubble = document.getElementById('comingSoonBubble');
+
+        // iOS System Pop Engine Targets
+        const galleryItems = document.querySelectorAll('.gallery-item');
+        const imagePreviewOverlay = document.getElementById('imagePreviewOverlay');
+        const previewImage = document.getElementById('previewImage');
+
+        function closeAllDrawers() {
+            menuTrigger.classList.remove('active');
+            iosMenu.classList.remove('open');
+            iosProfilePanel.classList.remove('open');
+            settingsAccordionBtn.classList.remove('active-parent');
+            settingsDropdown.classList.remove('expanded');
+            contactAccordionBtn.classList.remove('active-parent');
+            contactDropdown.classList.remove('expanded');
+            comingSoonBubble.classList.remove('active');
+        }
+
+        // 1. Main Dropdown Navigation Panel Controller
+        menuTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = iosMenu.classList.contains('open');
+            closeAllDrawers();
+            if (!isOpen) {
+                menuTrigger.classList.add('active');
+                iosMenu.classList.add('open');
+            }
+        });
+
+        // 2. Profile Dropdown Panel Controller (About Us)
+        profileTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = iosProfilePanel.classList.contains('open');
+            closeAllDrawers();
+            if (!isOpen) {
+                iosProfilePanel.classList.add('open');
+            }
+        });
+
+        // Contextual click outside global dismiss hook
+        document.addEventListener('click', (e) => {
+            if (!iosMenu.contains(e.target) && 
+                !menuTrigger.contains(e.target) && 
+                !profileTrigger.contains(e.target) && 
+                !iosProfilePanel.contains(e.target)) {
+                closeAllDrawers();
+            }
+        });
+
+        // 3. Automated Smooth Scroll Traversal Engine 
+        document.querySelectorAll('[data-scroll-target]').forEach(button => {
+            button.addEventListener('click', () => {
+                const targetID = button.getAttribute('data-scroll-target');
+                const targetSection = document.querySelector(targetID);
+                
+                if (targetSection) {
+                    closeAllDrawers();
+                    targetSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // 4. Settings System Drawers Toggle Events
+        settingsAccordionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsAccordionBtn.classList.toggle('active-parent');
+            settingsDropdown.classList.toggle('expanded');
+        });
+
+        // 5. Native Split Theme Selection Logic
+        lightThemeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            htmlElement.setAttribute('data-theme', 'light');
+            lightThemeBtn.classList.add('active');
+            darkThemeBtn.classList.remove('active');
+        });
+
+        darkThemeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            htmlElement.setAttribute('data-theme', 'dark');
+            darkThemeBtn.classList.add('active');
+            lightThemeBtn.classList.remove('active');
+        });
+
+        // 6. Contact Stack Drawer Accordion Engine
+        contactAccordionBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            contactAccordionBtn.classList.toggle('active-parent');
+            contactDropdown.classList.toggle('expanded');
+        });
+
+        // 7. Contextual Point-Based Liquid Glass Popover Alert Controller
+        packagesMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            comingSoonBubble.classList.toggle('active');
+        });
+
+        // 8. Mobile Scroll-Linked Chromatic Shine Translation Engine
+        window.addEventListener('scroll', () => {
+            if (window.innerWidth <= 768 && heroTitle) {
+                const rect = heroTitle.getBoundingClientRect();
+                const viewHeight = window.innerHeight;
+                
+                // Calculate scroll position boundary intersection ratios
+                const progress = (rect.top + rect.height) / (viewHeight + rect.height);
+                const boundedProgress = Math.max(0, Math.min(1, 1 - progress));
+                
+                // Translate percentage steps linearly through text mask space
+                const bgPos = 160 - (boundedProgress * 220);
+                heroTitle.style.backgroundPosition = `${bgPos}% 0`;
+            }
+        });
+
+        // 9. High-Fidelity iOS 26 Pop-Out Haptic Engine Setup
+        galleryItems.forEach(item => {
+            const targetSrc = item.getAttribute('data-src');
+
+            const triggerPress = () => {
+                item.style.transform = 'scale(0.95)';
+            };
+
+            const triggerPop = (e) => {
+                e.stopPropagation();
+                item.style.transform = '';
+                previewImage.src = targetSrc;
+                imagePreviewOverlay.classList.add('active');
+            };
+
+            const resetPress = () => {
+                item.style.transform = '';
+            };
+
+            item.addEventListener('mousedown', triggerPress);
+            item.addEventListener('mouseup', triggerPop);
+            item.addEventListener('mouseleave', resetPress);
+
+            item.addEventListener('touchstart', triggerPress, { passive: true });
+            item.addEventListener('touchend', triggerPop);
+            item.addEventListener('touchcancel', resetPress);
+        });
+
+        imagePreviewOverlay.addEventListener('click', () => {
+            imagePreviewOverlay.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
